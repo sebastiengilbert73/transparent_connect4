@@ -1,0 +1,426 @@
+:root {
+    --bg-gradient: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    --glass-bg: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --text-color: #ffffff;
+    --player-1-color: #ff007f;
+    /* Neon Pink */
+    --player-1-glow: 0 0 15px #ff007f;
+    --player-2-color: #00f2ff;
+    /* Neon Cyan */
+    --player-2-glow: 0 0 15px #00f2ff;
+    --accent-color: #7000ff;
+    --slot-bg: rgba(0, 0, 0, 0.3);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Outfit', sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--bg-gradient);
+    color: var(--text-color);
+    overflow: hidden;
+}
+
+.glass-container {
+    background: var(--glass-bg);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 2rem;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 95vw;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+h1 {
+    font-size: 2.5rem;
+    font-weight: 600;
+    letter-spacing: -1px;
+}
+
+h1 span {
+    color: var(--accent-color);
+    text-shadow: 0 0 10px var(--accent-color);
+}
+
+.status-panel {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.player-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.player-info.active {
+    opacity: 1;
+}
+
+.indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.indicator.player-1 {
+    background-color: var(--player-1-color);
+}
+
+.indicator.player-2 {
+    background-color: var(--player-2-color);
+}
+
+.indicator.active {
+    box-shadow: 0 0 10px currentColor;
+    transform: scale(1.2);
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    border-radius: 16px;
+    border: 1px solid var(--glass-border);
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    border-radius: 8px;
+}
+
+.column:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.slot {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--slot-bg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.coin {
+    width: 85%;
+    height: 85%;
+    border-radius: 50%;
+    transform: translateY(-1000px);
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.coin.dropped {
+    transform: translateY(0);
+}
+
+.coin.p1 {
+    background: var(--player-1-color);
+    box-shadow: var(--player-1-glow), inset -4px -4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.coin.p2 {
+    background: var(--player-2-color);
+    box-shadow: var(--player-2-glow), inset -4px -4px 10px rgba(0, 0, 0, 0.5);
+}
+
+footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.game-message {
+    font-weight: 300;
+    font-size: 1.1rem;
+}
+
+.btn {
+    padding: 0.8rem 1.5rem;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn.primary {
+    background: var(--accent-color);
+    color: white;
+}
+
+.btn.secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid var(--glass-border);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.win-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    transition: opacity 0.5s ease;
+}
+
+.win-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.win-content {
+    text-align: center;
+    transform: scale(0.8);
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.win-overlay:not(.hidden) .win-content {
+    transform: scale(1);
+}
+
+.win-content h2 {
+    font-size: 3.5rem;
+    margin-bottom: 2rem;
+    text-shadow: 0 0 20px currentColor;
+}
+
+/* Toggle and Selection UI Update */
+.brand {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.analysis-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+/* Switch styling */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 34px;
+    height: 20px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.1);
+    transition: .4s;
+    border: 1px solid var(--glass-border);
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 12px;
+    width: 12px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+}
+
+input:checked+.slider {
+    background-color: var(--accent-color);
+    box-shadow: 0 0 10px var(--accent-color);
+}
+
+input:checked+.slider:before {
+    transform: translateX(14px);
+}
+
+.slider.round {
+    border-radius: 20px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+/* Tooltip Styling - Vertical Stripe */
+.analysis-tooltip {
+    position: fixed;
+    pointer-events: none;
+    background: rgba(15, 12, 41, 0.95);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 1.2rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-width: 220px;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+.analysis-tooltip::-webkit-scrollbar {
+    width: 6px;
+}
+
+.analysis-tooltip::-webkit-scrollbar-thumb {
+    background: var(--glass-border);
+    border-radius: 3px;
+}
+
+.analysis-tooltip.hidden {
+    display: none;
+}
+
+.analysis-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.8rem;
+}
+
+.score-value {
+    font-weight: 600;
+    font-size: 1.3rem;
+    color: var(--accent-color);
+    text-shadow: 0 0 10px var(--accent-color);
+}
+
+.path-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    opacity: 0.6;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.path-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    align-items: center;
+}
+
+/* Individual Analysis State Item */
+.state-item {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    width: 100%;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.mini-board-container {
+    padding: 4px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mini-board {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+
+.mini-slot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.mini-slot.p1 {
+    background: var(--player-1-color);
+    box-shadow: 0 0 4px var(--player-1-color);
+}
+
+.mini-slot.p2 {
+    background: var(--player-2-color);
+    box-shadow: 0 0 4px var(--player-2-color);
+}
+
+.state-value {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #fff;
+    opacity: 1;
+    white-space: nowrap;
+}
+
+.state-arrow {
+    align-self: center;
+    font-size: 1rem;
+    opacity: 0.4;
+    color: var(--accent-color);
+}
+
+@media (max-width: 600px) {
+    .slot {
+        width: 40px;
+        height: 40px;
+    }
+}
