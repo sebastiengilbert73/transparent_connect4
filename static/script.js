@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectionOverlay = document.getElementById('selection-overlay');
     const selectOptions = document.querySelectorAll('.select-opt');
     const analysisModeToggle = document.getElementById('analysis-mode');
-    const analysisTooltip = document.getElementById('analysis-tooltip');
+    const analysisPanel = document.getElementById('analysis-panel');
     const analysisScore = document.getElementById('analysis-score');
     const analysisSteps = document.getElementById('analysis-steps');
 
@@ -33,8 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
             columnEl.dataset.col = col;
             columnEl.addEventListener('click', () => handleMove(col));
             columnEl.addEventListener('mouseenter', () => showAnalysis(col));
-            columnEl.addEventListener('mouseleave', hideAnalysis);
-            columnEl.addEventListener('mousemove', moveTooltip);
 
             for (let row = 0; row < 6; row++) {
                 const slotEl = document.createElement('div');
@@ -118,30 +116,11 @@ document.addEventListener('DOMContentLoaded', () => {
             analysisSteps.appendChild(item);
         });
 
-        analysisTooltip.classList.remove('hidden');
+        analysisPanel.classList.remove('hidden');
     }
 
     function hideAnalysis() {
-        analysisTooltip.classList.add('hidden');
-    }
-
-    function moveTooltip(e) {
-        if (analysisTooltip.classList.contains('hidden')) return;
-
-        // Keep tooltip within viewport
-        let x = e.clientX + 15;
-        let y = e.clientY + 15;
-
-        const tooltipRect = analysisTooltip.getBoundingClientRect();
-        if (x + tooltipRect.width > window.innerWidth) {
-            x = e.clientX - tooltipRect.width - 15;
-        }
-        if (y + tooltipRect.height > window.innerHeight) {
-            y = e.clientY - tooltipRect.height - 15;
-        }
-
-        analysisTooltip.style.left = x + 'px';
-        analysisTooltip.style.top = y + 'px';
+        analysisPanel.classList.add('hidden');
     }
 
     analysisModeToggle.addEventListener('change', (e) => {
@@ -163,7 +142,6 @@ document.addEventListener('DOMContentLoaded', () => {
     async function handleMove(col) {
         if (gameState.game_over || gameState.current_player !== 1 || isProcessing) return;
         isProcessing = true;
-        hideAnalysis();
 
         try {
             const response = await fetch('/api/move', {
@@ -213,7 +191,6 @@ document.addEventListener('DOMContentLoaded', () => {
     async function checkAITurn() {
         if (gameState.game_over || gameState.current_player !== 2 || isProcessing) return;
         isProcessing = true;
-        hideAnalysis();
 
         gameMessage.textContent = "Computer is thinking...";
 

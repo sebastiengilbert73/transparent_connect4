@@ -90,7 +90,7 @@ class Connect4:
         
         # First step: the move just made
         # We need its heuristic value
-        step_score = self.score_position(b_copy, 2)
+        step_score = self.score_position(b_copy)
         if self.current_player == 1: step_score = -step_score
         analysis_steps.append({"board": [row[:] for row in b_copy], "score": step_score})
         
@@ -123,7 +123,7 @@ class Connect4:
                 else: # Game is over, no more valid moves
                     return (None, 0, [])
             else: # Depth is zero
-                return (None, self.score_position(board, 2), [])
+                return (None, self.score_position(board), [])
 
         # path_data stores: (column, board_after_move, score_of_this_move)
         best_path_data = []
@@ -161,54 +161,59 @@ class Connect4:
                     break
             return column, value, best_path_data
 
-    def score_position(self, board, player):
+    def score_position(self, board):
         score = 0
         # Score center column
         center_array = [board[r][self.cols//2] for r in range(self.rows)]
-        center_count = center_array.count(player)
-        score += center_count * 3
+        score += center_array.count(2) * 3
+        score -= center_array.count(1) * 3
 
-        # Score Horizontal
+        # Score All Directions
+        # Horizontal
         for r in range(self.rows):
             row_array = [int(i) for i in list(board[r])]
             for c in range(self.cols-3):
                 window = row_array[c:c+4]
-                score += self.evaluate_window(window, player)
+                score += self.evaluate_window(window)
 
-        # Score Vertical
+        # Vertical
         for c in range(self.cols):
             col_array = [int(board[r][c]) for r in range(self.rows)]
             for r in range(self.rows-3):
                 window = col_array[r:r+4]
-                score += self.evaluate_window(window, player)
+                score += self.evaluate_window(window)
 
-        # Score positive sloped diagonal
+        # positive sloped diagonal
         for r in range(self.rows-3):
             for c in range(self.cols-3):
                 window = [board[r+i][c+i] for i in range(4)]
-                score += self.evaluate_window(window, player)
+                score += self.evaluate_window(window)
 
-        # Score negative sloped diagonal
+        # negative sloped diagonal
         for r in range(self.rows-3):
             for c in range(3, self.cols):
                 window = [board[r+i][c-i] for i in range(4)]
-                score += self.evaluate_window(window, player)
+                score += self.evaluate_window(window)
 
         return score
 
-    def evaluate_window(self, window, player):
+    def evaluate_window(self, window):
         score = 0
-        opp_player = 1 if player == 2 else 2
-
-        if window.count(player) == 4:
+        # Positive scores for Player 2 (AI)
+        if window.count(2) == 4:
             score += 100
-        elif window.count(player) == 3 and window.count(0) == 1:
+        elif window.count(2) == 3 and window.count(0) == 1:
             score += 5
-        elif window.count(player) == 2 and window.count(0) == 2:
+        elif window.count(2) == 2 and window.count(0) == 2:
             score += 2
 
-        if window.count(opp_player) == 3 and window.count(0) == 1:
-            score -= 4
+        # Negative scores for Player 1 (Human)
+        if window.count(1) == 4:
+            score -= 100
+        elif window.count(1) == 3 and window.count(0) == 1:
+            score -= 5
+        elif window.count(1) == 2 and window.count(0) == 2:
+            score -= 2
 
         return score
 
